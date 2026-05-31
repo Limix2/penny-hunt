@@ -1,0 +1,41 @@
+version: "3.9"
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: penny
+      POSTGRES_PASSWORD: penny
+      POSTGRES_DB: penny_hunt
+    ports: ["5432:5432"]
+    volumes: ["pgdata:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U penny"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  backend:
+    build: ./backend
+    environment:
+      DATABASE_URL: postgresql+psycopg2://penny:penny@db:5432/penny_hunt
+      SECRET_KEY: change-me
+      ALLOWED_ORIGINS: http://localhost:3000
+      TARGET_ZIP: "78542"
+      RADIUS_MILES: "30"
+    ports: ["8000:8000"]
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  frontend:
+    build: ./frontend
+    environment:
+      NEXT_PUBLIC_API_BASE: http://localhost:8000
+      NEXT_PUBLIC_WS_URL: ws://localhost:8000/ws/live
+    ports: ["3000:3000"]
+    depends_on: [backend]
+volumes:
+  pgdata:

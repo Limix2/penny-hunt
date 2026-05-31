@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+.env.*
+penny_hunt.db
+node_modules/
+.next/
+out/
+dist/
+.DS_Store
