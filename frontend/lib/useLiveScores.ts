@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { WS_URL } from "./api";
+import { WS_URL } from "./wsConfig";
 
 export interface LiveEvent {
   type: string; id: number; score: number; explanation: string;
